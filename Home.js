@@ -7,8 +7,8 @@ function Home() {
 
   const onDateChange = (date) => {
     setSelectedDate(date);
-    console.warn(date);
   };
+
   const startDate = selectedDate ? selectedDate.toString() : "";
   return (
     <View style={styles.container}>

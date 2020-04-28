@@ -1,23 +1,34 @@
+import * as firebase from "firebase";
 import React from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import Bills from "./Bills";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyC1fXxXtjSpCyivPoB0VIyNfXbWEHK_e-c",
+  authDomain: "splitbill-3e5b0.firebaseapp.com",
+  databaseURL: "https://splitbill-3e5b0.firebaseio.com",
+  projectId: "splitbill-3e5b0",
+  storageBucket: "splitbill-3e5b0.appspot.com",
+  messagingSenderId: "617934844162",
+  appId: "1:617934844162:web:5946cea43425e13ed2921b",
+  measurementId: "G-K9C2YSMT47",
+};
+
+firebase.initializeApp(firebaseConfig);
+firebase.database().ref("activities/");
+
 function NewActivity() {
   const [activityTitle, setActivityTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [myName, setMyName] = React.useState("");
+  const [participantName, setParticipantName] = React.useState("");
   const [participants, setParticipants] = React.useState([]);
   const [next, setNext] = React.useState(false);
   const [activityList, setActivityList] = React.useState([]);
 
   const handleNewParticipants = () => {
-    setParticipants([...participants, ""]);
-  };
-
-  const handleChange = (e, index) => {
-    participants[index] = e.target.value;
-    setParticipants(participants);
+    setParticipants([...participants, participantName]);
+    setParticipantName("");
   };
 
   const handleBack = () => {
@@ -26,7 +37,28 @@ function NewActivity() {
 
   const handleSave = () => {
     setNext(!next);
-    setActivityList([...activityList, activityTitle]);
+
+    firebase.database().ref("activities/").push({
+      title: activityTitle,
+      description: description,
+      participants: participants,
+    });
+  };
+
+  React.useEffect(() => {
+    firebase
+      .database()
+      .ref("activities/")
+      .on("value", (snapshot) => {
+        const data = snapshot.val();
+        const act = Object.values(data);
+        setActivityList(act);
+      });
+  }, []);
+
+  const handleDelete = (index) => {
+    const newList = participants.filter((_, i) => i !== index);
+    setParticipants(newList);
   };
 
   return (
@@ -53,21 +85,23 @@ function NewActivity() {
           <Text>Participants</Text>
           <View style={styles.row}>
             <TextInput
-              value={myName}
-              onChangeText={(myName) => setMyName(myName)}
+              value={participantName}
+              onChangeText={(participantName) =>
+                setParticipantName(participantName)
+              }
               style={styles.input}
-              placeholder="My name"
+              placeholder="Participant's Name"
             />
             <Button title="Add" onPress={(e) => handleNewParticipants(e)} />
           </View>
           {participants.map((participant, index) => (
-            <View key={index}>
-              <TextInput
-                value={participant}
-                onChangeText={(e) => handleChange(e, index)}
-                style={styles.input}
-                placeholder="Others"
-              />
+            <View style={styles.row} key={index}>
+              <Text>{participant}</Text>
+              <Button
+                color="red"
+                title="Delete"
+                onPress={() => handleDelete(index)}
+              ></Button>
             </View>
           ))}
           <View style={styles.row}>

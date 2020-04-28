@@ -1,3 +1,4 @@
+import * as firebase from "firebase";
 import React, { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Dropdown } from "react-native-material-dropdown";
@@ -6,26 +7,36 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import BillList from "./BillList";
 
 function NewExpense(props) {
-  const { participants } = props;
+  const { participants, activity } = props;
   const [expenseTitle, setExpenseTitle] = useState("");
-  const [amount, setAmount] = useState("");
+  const [total, setTotal] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [hideButton, setHideButton] = useState(false);
   const [date, setDate] = useState("");
   const [back, setBack] = React.useState(false);
   const [paidBy, setPaidBy] = React.useState("");
+  const [expense, setExpense] = React.useState([]);
 
-  console.warn(date);
+  const element = {};
+  element.title = expenseTitle;
+  element.total = total;
+  element.date = date;
+  element.paidBy = paidBy;
 
   const handleBack = () => {
     setBack(true);
+  };
+
+  const handleSave = () => {
+    setBack(true);
+    setExpense([...expense, element]);
   };
 
   const participantDropdown = participants.map((participant) => ({
     value: participant,
   }));
 
-  const calculator = amount / participants.length;
+  const dividedMoney = (total / participants.length).toFixed(2);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -40,15 +51,15 @@ function NewExpense(props) {
     setDate(JSON.stringify(date));
     setHideButton(true);
   };
+
   return (
     <>
       {back ? (
         <BillList
           participants={participants}
-          expenseTitle={expenseTitle}
-          amount={amount}
-          calculator={calculator}
-          paidBy={paidBy}
+          activity={activity}
+          expense={expense}
+          dividedMoney={dividedMoney}
         />
       ) : (
         <View style={styles.container}>
@@ -60,12 +71,12 @@ function NewExpense(props) {
             style={styles.input}
             placeholder="Title"
           />
-          <Text>Amount </Text>
+          <Text>total </Text>
           <TextInput
             keyboardType="numeric"
-            value={amount}
-            placeholder="Amount of money"
-            onChangeText={(amount) => setAmount(amount)}
+            value={total}
+            placeholder="Total amount of money"
+            onChangeText={(total) => setTotal(total)}
             style={styles.input}
           />
           <Text>Date</Text>
@@ -90,12 +101,12 @@ function NewExpense(props) {
           {participants.map((participant, index) => (
             <View style={styles.row} key={index}>
               <Text style={styles.list}>{participant}</Text>
-              <Text>{calculator}</Text>
+              <Text>{dividedMoney}</Text>
             </View>
           ))}
           <View style={styles.row}>
             <Button title="Cancel" color="red" onPress={handleBack}></Button>
-            <Button title="Save" onPress={handleBack}></Button>
+            <Button title="Save" onPress={handleSave}></Button>
           </View>
         </View>
       )}

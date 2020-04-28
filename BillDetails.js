@@ -2,49 +2,76 @@ import React from "react";
 import { Alert, Button, StyleSheet, Text, View } from "react-native";
 
 import BillList from "./BillList";
+import Participants from "./Participants";
 
 function BillDetails(props) {
-  const { expenseTitle, calculator, participants, paidBy } = props;
+  const { expense, participants, activity, dividedMoney } = props;
   const [back, setBack] = React.useState(false);
   const [style, setStyle] = React.useState({ color: "red" });
+  const [choosenParticipant, setChoosenParticipant] = React.useState({});
   const filteredParticipantList = participants.filter(
-    (items) => items !== paidBy
+    (items) => items !== expense.paidBy
   );
+
+  const partcipantDetail = participants.map((participant) => ({
+    name: participant,
+    paid: false,
+  }));
 
   const handleBack = () => {
     setBack(true);
   };
 
-  const handleShowAlert = () => {
+  const handleShowAlert = (index) => {
+    const currentParticipant = partcipantDetail[index];
+    setChoosenParticipant(currentParticipant);
+
     Alert.alert(
-      `Did you paid back to ${paidBy} ?`,
+      `Did you paid back to ${expense.paidBy} ?`,
       "Pick these 2 options?",
       [
         {
           text: "Yes. I already paid",
-          onPress: () => setStyle({ color: "green" }),
+          onPress: () =>
+            setChoosenParticipant({ ...choosenParticipant, paid: true }),
         },
-        { text: "No, I did not", onPress: () => setStyle({ color: "red" }) },
+        {
+          text: "No, I did not",
+          //, onPress: () => setStyle({ color: "red" })
+        },
       ],
       { cancelable: true }
     );
   };
 
+  // if (choosenParticipant.paid === true) {
+  //   setStyle({ ...style, color: "blue" });
+  // } else {
+  //   setStyle({ ...style, color: "red" });
+  // }
+
   return (
     <>
       {back ? (
-        <BillList participants={participants} />
+        <BillList participants={participants} activity={activity} />
       ) : (
         <View style={styles.container}>
           <View style={styles.back}>
             <Button title="< Back" color="grey" onPress={handleBack}></Button>
           </View>
-          <Text style={styles.title}>{expenseTitle}</Text>
-          <Text style={styles.subtite}> Paid by {paidBy}</Text>
+          <Text style={styles.title}>{expense.title}</Text>
+          <Text style={styles.subtite}> Paid by {expense.paidBy}</Text>
+          <View style={styles.rownoline}>
+            <Text>Participants</Text>
+            <Text>Money </Text>
+          </View>
           {filteredParticipantList.map((participant, index) => (
             <View key={index} style={styles.row}>
-              <Button onPress={handleShowAlert} title={participant}></Button>
-              <Text style={style}>{calculator}</Text>
+              <Button
+                onPress={() => handleShowAlert(index)}
+                title={participant}
+              ></Button>
+              <Text style={style}>{dividedMoney}</Text>
             </View>
           ))}
         </View>
@@ -75,6 +102,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     margin: 10,
   },
-  amount: { color: "red" },
+  rownoline: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
 });
 export default BillDetails;

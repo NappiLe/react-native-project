@@ -6,21 +6,14 @@ import NewExpense from "./NewExpense";
 import Participants from "./Participants";
 
 function BillList(props) {
-  const {
-    participants,
-    activityTitle,
-    amount,
-    expenseTitle,
-    calculator,
-    paidBy,
-    date,
-  } = props;
+  const { activity, participants, expense, dividedMoney } = props;
   const [next, setNext] = React.useState(false);
   const [back, setBack] = React.useState(false);
   const [detail, setDetail] = React.useState(false);
-
-  const handleGoDetail = () => {
+  const [id, setId] = React.useState("");
+  const handleGoDetail = (index) => {
     setDetail(true);
+    setId(index);
   };
 
   const handleNext = () => {
@@ -34,30 +27,35 @@ function BillList(props) {
   return (
     <>
       {next ? (
-        <NewExpense participants={participants} />
+        <NewExpense activity={activity} participants={participants} />
       ) : back ? (
-        <Participants />
+        <Participants activity={activity} />
       ) : detail ? (
         <BillDetails
-          expenseTitle={expenseTitle}
-          calculator={calculator}
+          expense={expense[id]}
           participants={participants}
-          paidBy={paidBy}
+          activity={activity}
+          dividedMoney={dividedMoney}
         />
       ) : (
         <View style={styles.container}>
           <View style={styles.back}>
             <Button title="< Back" color="grey" onPress={handleBack}></Button>
           </View>
-          <Text style={styles.title}>{activityTitle}</Text>
+          <Text style={styles.title}>{activity.title}</Text>
           <Text style={styles.text}>{participants.join(", ")}</Text>
           <Button title="Add new expense" onPress={handleNext}></Button>
-          {expenseTitle == undefined ? null : (
-            <View style={styles.row}>
-              <Button title={expenseTitle} onPress={handleGoDetail}></Button>
-              <Text> {amount}</Text>
-            </View>
-          )}
+          {expense === undefined
+            ? null
+            : expense.map((i, index) => (
+                <View key={index} style={styles.row}>
+                  <Button
+                    title={i.title}
+                    onPress={() => handleGoDetail(index)}
+                  ></Button>
+                  <Text> {i.total}</Text>
+                </View>
+              ))}
         </View>
       )}
     </>

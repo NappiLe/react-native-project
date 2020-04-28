@@ -1,15 +1,15 @@
+import * as firebase from "firebase";
 import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
-import BillDetails from "./BillList";
+import BillList from "./BillList";
 import Bills from "./Bills";
 
-const participants = ["Tom", "John", "Anna", "Ben"];
-
 function Participants(props) {
-  const { activityTitle } = props;
+  const { activity } = props;
   const [next, setNext] = React.useState(false);
   const [back, setBack] = React.useState(false);
+  const participants = activity.participants;
 
   const handleNext = () => {
     setNext(!next);
@@ -22,10 +22,7 @@ function Participants(props) {
   return (
     <>
       {next ? (
-        <BillDetails
-          participants={participants}
-          activityTitle={activityTitle}
-        />
+        <BillList activity={activity} participants={participants} />
       ) : back ? (
         <Bills />
       ) : (

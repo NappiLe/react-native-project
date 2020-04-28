@@ -1,3 +1,4 @@
+import * as firebase from "firebase";
 import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
@@ -5,15 +6,28 @@ import NewActivity from "./NewActivity";
 import Participants from "./Participants";
 
 function Bills(props) {
-  const { activityList, activityTitle, date } = props;
+  const { date } = props;
   const [next, setNext] = React.useState(false);
   const [newActivity, setNewActivity] = React.useState(false);
+  const [activityList, setActivityList] = React.useState([]);
+  const [id, setId] = React.useState("");
 
-  const handleNext = () => {
+  React.useEffect(() => {
+    firebase
+      .database()
+      .ref("activities/")
+      .on("value", (snapshot) => {
+        const data = snapshot.val();
+        const act = Object.values(data);
+        setActivityList(act);
+      });
+  }, []);
+
+  const handleNext = (index) => {
     setNext(true);
+    setId(index);
   };
 
-  console.log(date);
   const handleNew = () => {
     setNewActivity(true);
   };
@@ -21,7 +35,7 @@ function Bills(props) {
   return (
     <>
       {next ? (
-        <Participants activityTitle={activityTitle} />
+        <Participants activity={activityList[id]} />
       ) : newActivity ? (
         <NewActivity />
       ) : (
@@ -33,10 +47,9 @@ function Bills(props) {
             : activityList.map((trip, index) => (
                 <View key={index} style={styles.wrapper}>
                   <Button
-                    onPress={handleNext}
-                    color="black"
+                    onPress={() => handleNext(index)}
                     style={styles.title}
-                    title={trip}
+                    title={trip.title}
                   ></Button>
                 </View>
               ))}
