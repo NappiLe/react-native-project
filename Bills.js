@@ -6,7 +6,6 @@ import NewActivity from "./NewActivity";
 import Participants from "./Participants";
 
 function Bills(props) {
-  const { date } = props;
   const [next, setNext] = React.useState(false);
   const [newActivity, setNewActivity] = React.useState(false);
   const [activityList, setActivityList] = React.useState([]);
@@ -35,7 +34,7 @@ function Bills(props) {
   return (
     <>
       {next ? (
-        <Participants activity={activityList[id]} />
+        <Participants keyId={id} activity={activityList[id]} />
       ) : newActivity ? (
         <NewActivity />
       ) : (

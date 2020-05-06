@@ -2,76 +2,65 @@ import React from "react";
 import { Alert, Button, StyleSheet, Text, View } from "react-native";
 
 import BillList from "./BillList";
-import Participants from "./Participants";
 
 function BillDetails(props) {
-  const { expense, participants, activity, dividedMoney } = props;
+  const { object } = props;
   const [back, setBack] = React.useState(false);
-  const [style, setStyle] = React.useState({ color: "red" });
-  const [choosenParticipant, setChoosenParticipant] = React.useState({});
-  const filteredParticipantList = participants.filter(
-    (items) => items !== expense.paidBy
+  const filteredParticipantList = object.participants.filter(
+    (items) => items.name !== object.paidBy
   );
 
-  const partcipantDetail = participants.map((participant) => ({
-    name: participant,
-    paid: false,
-  }));
+  const [participantList, setParticipantList] = React.useState(
+    filteredParticipantList
+  );
 
   const handleBack = () => {
     setBack(true);
   };
 
   const handleShowAlert = (index) => {
-    const currentParticipant = partcipantDetail[index];
-    setChoosenParticipant(currentParticipant);
+    const newList = participantList.filter((_, i) => i !== index);
 
     Alert.alert(
-      `Did you paid back to ${expense.paidBy} ?`,
+      `Did you paid back to ${object.paidBy} ?`,
       "Pick these 2 options?",
       [
         {
           text: "Yes. I already paid",
-          onPress: () =>
-            setChoosenParticipant({ ...choosenParticipant, paid: true }),
+          onPress: () => {
+            setParticipantList(newList);
+          },
         },
         {
           text: "No, I did not",
-          //, onPress: () => setStyle({ color: "red" })
         },
       ],
       { cancelable: true }
     );
   };
 
-  // if (choosenParticipant.paid === true) {
-  //   setStyle({ ...style, color: "blue" });
-  // } else {
-  //   setStyle({ ...style, color: "red" });
-  // }
-
   return (
     <>
       {back ? (
-        <BillList participants={participants} activity={activity} />
+        <BillList />
       ) : (
         <View style={styles.container}>
           <View style={styles.back}>
             <Button title="< Back" color="grey" onPress={handleBack}></Button>
           </View>
-          <Text style={styles.title}>{expense.title}</Text>
-          <Text style={styles.subtite}> Paid by {expense.paidBy}</Text>
+          <Text style={styles.title}>{object.title}</Text>
+          <Text style={styles.subtite}> Paid by {object.paidBy}</Text>
           <View style={styles.rownoline}>
             <Text>Participants</Text>
             <Text>Money </Text>
           </View>
-          {filteredParticipantList.map((participant, index) => (
+          {participantList.map((participant, index) => (
             <View key={index} style={styles.row}>
               <Button
                 onPress={() => handleShowAlert(index)}
-                title={participant}
+                title={participant.name}
               ></Button>
-              <Text style={style}>{dividedMoney}</Text>
+              <Text style={{ color: "green" }}>{participant.needToPay}</Text>
             </View>
           ))}
         </View>

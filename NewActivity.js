@@ -4,18 +4,17 @@ import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
 import Bills from "./Bills";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC1fXxXtjSpCyivPoB0VIyNfXbWEHK_e-c",
-  authDomain: "splitbill-3e5b0.firebaseapp.com",
-  databaseURL: "https://splitbill-3e5b0.firebaseio.com",
-  projectId: "splitbill-3e5b0",
-  storageBucket: "splitbill-3e5b0.appspot.com",
-  messagingSenderId: "617934844162",
-  appId: "1:617934844162:web:5946cea43425e13ed2921b",
-  measurementId: "G-K9C2YSMT47",
+const config = {
+  apiKey: "AIzaSyDsO2n7oRmFSWQ3PaMplFZtLWORJGo8_lw",
+  authDomain: "splitapp-2e505.firebaseapp.com",
+  databaseURL: "https://splitapp-2e505.firebaseio.com",
+  projectId: "splitapp-2e505",
+  storageBucket: "splitapp-2e505.appspot.com",
+  messagingSenderId: "298159530757",
+  appId: "1:298159530757:web:6cce5653263738bf3d0d6c",
 };
 
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(config);
 firebase.database().ref("activities/");
 
 function NewActivity() {
@@ -37,7 +36,6 @@ function NewActivity() {
 
   const handleSave = () => {
     setNext(!next);
-
     firebase.database().ref("activities/").push({
       title: activityTitle,
       description: description,

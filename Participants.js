@@ -6,7 +6,7 @@ import BillList from "./BillList";
 import Bills from "./Bills";
 
 function Participants(props) {
-  const { activity } = props;
+  const { activity, keyId } = props;
   const [next, setNext] = React.useState(false);
   const [back, setBack] = React.useState(false);
   const participants = activity.participants;
@@ -22,7 +22,11 @@ function Participants(props) {
   return (
     <>
       {next ? (
-        <BillList activity={activity} participants={participants} />
+        <BillList
+          keyId={keyId}
+          activity={activity}
+          participants={participants}
+        />
       ) : back ? (
         <Bills />
       ) : (

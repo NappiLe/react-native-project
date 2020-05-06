@@ -5,9 +5,10 @@ import { Dropdown } from "react-native-material-dropdown";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import BillList from "./BillList";
+import Participants from "./Participants";
 
 function NewExpense(props) {
-  const { participants, activity } = props;
+  const { participants, activity, keyId } = props;
   const [expenseTitle, setExpenseTitle] = useState("");
   const [total, setTotal] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -15,13 +16,32 @@ function NewExpense(props) {
   const [date, setDate] = useState("");
   const [back, setBack] = React.useState(false);
   const [paidBy, setPaidBy] = React.useState("");
-  const [expense, setExpense] = React.useState([]);
+  const [randomKey, setRandomKey] = React.useState([]);
 
-  const element = {};
-  element.title = expenseTitle;
-  element.total = total;
-  element.date = date;
-  element.paidBy = paidBy;
+  const uid = randomKey[keyId];
+
+  const participantDropdown = participants.map((participant) => ({
+    value: participant,
+  }));
+
+  const dividedMoney = (total / participants.length).toFixed(2);
+
+  const participantsDetail = participants.map((participant) => ({
+    name: participant,
+    paid: false,
+    needToPay: dividedMoney,
+  }));
+
+  React.useEffect(() => {
+    firebase
+      .database()
+      .ref("activities/")
+      .on("value", (snapshot) => {
+        const data = snapshot.val();
+        const keys = Object.keys(data);
+        setRandomKey(keys);
+      });
+  }, []);
 
   const handleBack = () => {
     setBack(true);
@@ -29,14 +49,18 @@ function NewExpense(props) {
 
   const handleSave = () => {
     setBack(true);
-    setExpense([...expense, element]);
+
+    firebase
+      .database()
+      .ref(`activities/` + `${uid}` + `/ ` + `expense`)
+      .set({
+        title: expenseTitle,
+        totalAmount: total,
+        date: date,
+        paidBy: paidBy,
+        participants: participantsDetail,
+      });
   };
-
-  const participantDropdown = participants.map((participant) => ({
-    value: participant,
-  }));
-
-  const dividedMoney = (total / participants.length).toFixed(2);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -58,8 +82,8 @@ function NewExpense(props) {
         <BillList
           participants={participants}
           activity={activity}
-          expense={expense}
           dividedMoney={dividedMoney}
+          keyId={keyId}
         />
       ) : (
         <View style={styles.container}>
@@ -71,7 +95,7 @@ function NewExpense(props) {
             style={styles.input}
             placeholder="Title"
           />
-          <Text>total </Text>
+          <Text>Total amount of money </Text>
           <TextInput
             keyboardType="numeric"
             value={total}
